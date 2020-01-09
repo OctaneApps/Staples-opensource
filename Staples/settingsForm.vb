@@ -15,6 +15,11 @@ Public Class settingsForm
     Private Sub settingsForm_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         cmbboxProtocol.SelectedIndex = 0
 
+        If My.Settings.password <> "" Then
+            txtboxPassword.Text = New IMAPClient.Password(My.Settings.password, True).Show()
+        End If
+
+
         If My.Settings.streamLabsStatus Then
             btnConnectStreamLabs.Visible = False
             lblStreamLabsStatus.Text = "Connected" : lblStreamLabsStatus.ForeColor = Color.Green
@@ -129,6 +134,7 @@ Public Class settingsForm
 
     Private Sub settingsForm_FormClosing(sender As Object, e As FormClosingEventArgs) Handles MyBase.FormClosing
         SaveScannerData("scanner.staples")
+        My.Settings.password = New IMAPClient.Password(txtboxPassword.Text).EncryptedPass
         My.Settings.Save()
     End Sub
 

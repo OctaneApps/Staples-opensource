@@ -2,6 +2,7 @@
 Imports System.IO
 Imports System.Net.Security
 Imports System.Net.Sockets
+Imports System.Security.Cryptography
 Imports System.Text
 Imports System.Text.RegularExpressions
 
@@ -103,7 +104,7 @@ Public Class IMAPClient
             SendCommand("LOGIN", username, password.Show)
             Status = "Logging you in" : StatusCode = StatusCodes.Working
             RaiseEvent StatusChanged()
-            Dim rawResp = (Await GetResponse()).Split(vbNewLine)
+            Dim rawResp = (Await BufferResponse()).Split(vbNewLine)
             Dim splitResp = rawResp(1).Trim().Remove(0, 2).Split(" ")
             If splitResp(0) = "OK" Then
                 isLoggedIn = True
@@ -243,7 +244,7 @@ Public Class IMAPClient
             Await GetMailbox(mailboxPath) : _SSLStream.Flush()
             Dim dateNow As String = Now.Day & "-" & CultureInfo.CurrentCulture.DateTimeFormat.GetAbbreviatedMonthName(Now.Month).ToLower & "-" & Now.Year
 
-            SendCommand("SEARCH", "(UNSEEN)", "FROM", ChrW(34) & from & ChrW(34), "ON", ChrW(34) & dateNow & ChrW(34))
+            SendCommand("SEARCH", "(UNSEEN)", "FROM", ChrW(34) & from & ChrW(34), "ON", ChrW(34) & "3-jan-2020" & ChrW(34))
 
             Dim rawresp = Await GetResponse()
             Dim _res = rawresp.Split(vbNewLine)(0).Remove(0, 8)
@@ -307,14 +308,51 @@ Public Class IMAPClient
 
 
     Public Class Password
-        Private _pass As String
+        Public ReadOnly Property EncryptedPass As String
+        Private enc As UTF8Encoding
+        Private encryptor As ICryptoTransform
+        Private decryptor As ICryptoTransform
 
-        Public Sub New(pass As String)
-            _pass = pass
+        Public Sub New()
+        End Sub
+
+        Public Sub New(pass As String, Optional isEncrypted As Boolean = False)
+            If Not String.IsNullOrEmpty(pass) Then
+                If isEncrypted = False Then
+                    Dim AES As New RijndaelManaged
+                    Dim Hash_AES As New MD5CryptoServiceProvider
+                    Dim hash(31) As Byte
+                    Dim temp As Byte() = Hash_AES.ComputeHash(Encoding.ASCII.GetBytes("STAPLES"))
+                    Array.Copy(temp, 0, hash, 0, 16)
+                    Array.Copy(temp, 0, hash, 15, 16)
+                    AES.Key = hash
+                    AES.Mode = CipherMode.ECB
+                    Dim DESEncrypter As ICryptoTransform = AES.CreateEncryptor
+                    Dim Buffer As Byte() = Encoding.ASCII.GetBytes(pass)
+                    EncryptedPass = Convert.ToBase64String(DESEncrypter.TransformFinalBlock(Buffer, 0, Buffer.Length))
+                Else
+                    EncryptedPass = pass
+                End If
+            End If
         End Sub
 
         Public Function Show() As String
-            Return _pass
+            Try
+                Dim AES As New RijndaelManaged
+                Dim Hash_AES As New MD5CryptoServiceProvider
+                Dim hash(31) As Byte
+                Dim temp As Byte() = Hash_AES.ComputeHash(Encoding.ASCII.GetBytes("STAPLES"))
+                Array.Copy(temp, 0, hash, 0, 16)
+                Array.Copy(temp, 0, hash, 15, 16)
+                AES.Key = hash
+                AES.Mode = CipherMode.ECB
+                Dim DESDecrypter As ICryptoTransform = AES.CreateDecryptor
+                Dim Buffer As Byte() = Convert.FromBase64String(EncryptedPass)
+                Dim decrypted As String = Encoding.ASCII.GetString(DESDecrypter.TransformFinalBlock(Buffer, 0, Buffer.Length))
+                Return decrypted
+            Catch ex As Exception
+                Return ""
+            End Try
         End Function
 
         Public Overrides Function ToString() As String

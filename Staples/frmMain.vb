@@ -4,7 +4,7 @@ Imports System.Text.RegularExpressions
 Imports Staples.Staples
 
 Public Class frmMain
-    Dim Staples As IMAPClient
+    Protected Friend Staples As IMAPClient
 
     Private _statsModeColor = {Color.Gray, Color.LightBlue, Color.ForestGreen, Color.IndianRed, Color.YellowGreen}
     Private _statsModeEnum As StatsModes = 0
@@ -106,11 +106,17 @@ Public Class frmMain
                     My.Settings.streamLabsStatus = True
                 End If
 
-                If Await Staples.Login(My.Settings.username, New IMAPClient.Password(My.Settings.password)) = True Then
+                If Await Staples.Login(My.Settings.username, New IMAPClient.Password(My.Settings.password, True)) = True Then
                     ChangeStats("Login Successful", StatsModes.Success)
 
                     tmrFetchEmail.Start()
                     ChangeStats("Fetching emails", StatsModes.Working)
+                Else
+                    ChangeStats("Failed to login. Please start again.", StatsModes.Critical)
+                    btnSettings.Enabled = True
+                    btnStart.Text = "Start"
+                    settingsForm.LogChanged("Failed to login. Please start again." & " (" & "Failed" & ")")
+                    txtLogs.AppendText("Failed to login. Please start again." & " (" & "Failed" & ")" & vbNewLine)
                 End If
             End If
         Catch ex As Exception
@@ -255,6 +261,8 @@ Public Class frmMain
                 _scannerResults.Add(Scanner.Scan(CastEmail(_email.UID, _email.GetBody, _email.GetDate, GetEmail(_email.GetFrom))).ScannerResults)
             Next
             ScannerEmails.Clear()
+
+            txtLogs.AppendText(_scannerResults.Count & vbNewLine)
 
             Dim _name As String = "" : Dim _amount As String = "" : Dim _message As String = "" : Dim _date As Date
             For Each sr As List(Of ScannerResult) In _scannerResults

@@ -81,6 +81,7 @@ Partial Class settingsForm
         Me.chkLogs = New System.Windows.Forms.CheckBox()
         Me.TabPage5 = New System.Windows.Forms.TabPage()
         Me.GroupBox4 = New System.Windows.Forms.GroupBox()
+        Me.btnDiscord = New System.Windows.Forms.Button()
         Me.Label40 = New System.Windows.Forms.Label()
         Me.Label39 = New System.Windows.Forms.Label()
         Me.Label38 = New System.Windows.Forms.Label()
@@ -108,7 +109,6 @@ Partial Class settingsForm
         Me.btnSave = New System.Windows.Forms.Button()
         Me.Label41 = New System.Windows.Forms.Label()
         Me.PictureBox1 = New System.Windows.Forms.PictureBox()
-        Me.btnDiscord = New System.Windows.Forms.Button()
         Me.TabControl1.SuspendLayout()
         Me.TabPage3.SuspendLayout()
         Me.TabPage1.SuspendLayout()
@@ -344,13 +344,11 @@ Partial Class settingsForm
         '
         'txtboxPassword
         '
-        Me.txtboxPassword.DataBindings.Add(New System.Windows.Forms.Binding("Text", Global.Staples.My.MySettings.Default, "password", True, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged))
         Me.txtboxPassword.Location = New System.Drawing.Point(138, 319)
         Me.txtboxPassword.Name = "txtboxPassword"
         Me.txtboxPassword.PasswordChar = Global.Microsoft.VisualBasic.ChrW(8226)
         Me.txtboxPassword.Size = New System.Drawing.Size(232, 22)
         Me.txtboxPassword.TabIndex = 15
-        Me.txtboxPassword.Text = Global.Staples.My.MySettings.Default.password
         '
         'Label12
         '
@@ -742,6 +740,15 @@ Partial Class settingsForm
         Me.GroupBox4.TabStop = False
         Me.GroupBox4.Text = "Notice"
         '
+        'btnDiscord
+        '
+        Me.btnDiscord.Location = New System.Drawing.Point(229, 131)
+        Me.btnDiscord.Name = "btnDiscord"
+        Me.btnDiscord.Size = New System.Drawing.Size(124, 23)
+        Me.btnDiscord.TabIndex = 3
+        Me.btnDiscord.Text = "Join Discord Server"
+        Me.btnDiscord.UseVisualStyleBackColor = True
+        '
         'Label40
         '
         Me.Label40.Font = New System.Drawing.Font("Segoe UI Semibold", 8.25!, CType((System.Drawing.FontStyle.Bold Or System.Drawing.FontStyle.Italic), System.Drawing.FontStyle), System.Drawing.GraphicsUnit.Point, CType(0, Byte))
@@ -1013,15 +1020,6 @@ Partial Class settingsForm
         Me.PictureBox1.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom
         Me.PictureBox1.TabIndex = 18
         Me.PictureBox1.TabStop = False
-        '
-        'btnDiscord
-        '
-        Me.btnDiscord.Location = New System.Drawing.Point(229, 131)
-        Me.btnDiscord.Name = "btnDiscord"
-        Me.btnDiscord.Size = New System.Drawing.Size(124, 23)
-        Me.btnDiscord.TabIndex = 3
-        Me.btnDiscord.Text = "Join Discord Server"
-        Me.btnDiscord.UseVisualStyleBackColor = True
         '
         'settingsForm
         '
